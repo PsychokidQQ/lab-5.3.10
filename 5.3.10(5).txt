@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+class Fraction {
+public:
+    Fraction(int numerator, int denominator);
+    string toString() const;
+    double toDouble() const;
+private:
+    int numerator_;
+    int denominator_;
+};
+
+Fraction::Fraction(int numerator, int denominator) {
+    
+    if (denominator < 0) {
+        numerator = -numerator;
+        denominator = -denominator;
+    }
+    numerator_ = numerator;
+    denominator_ = denominator;
+}
+
+string Fraction::toString() const {
+    int whole = numerator_ / denominator_;
+    int remainder = abs(numerator_) % denominator_;
+    string sign = (numerator_ < 0) ? "-" : "";
+    string result = sign;
+    if (whole != 0) {
+        result += to_string(abs(whole));
+    }
+    if (whole != 0 && remainder != 0) {
+        result += " ";
+    }
+    if (remainder != 0) {
+        result += to_string(remainder) + "/" + to_string(denominator_);
+    }
+    if (whole == 0 && remainder == 0) {
+        result = "0";
+    }
+    return result;
+}
+
+double Fraction::toDouble() const {
+    return static_cast<double>(numerator_) / static_cast<double>(denominator_);
+}
+
+int main() {
+    int num, den;
+    cout << "Enter a fraction in the form [numerator] / [denominator]: ";
+    cin >> num;
+    cin.ignore(); // ignore the "/"
+    cin >> den;
+    Fraction fraction(num, den);
+    cout << fraction.toString() << " is " << fraction.toDouble() << " in decimal" << endl;
+    return 0;
+}

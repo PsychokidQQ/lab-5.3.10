@@ -1,0 +1,134 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Member {
+public:
+    Member(int id, const string& name)
+        : id_(id), name_(name), months_(0) {}
+
+    int get_id() const { return id_; }
+    const string& get_name() const { return name_; }
+    int get_months() const { return months_; }
+
+    bool extend(int n) {
+        if (months_ == 0) {
+            return false;
+        }
+        months_ += n;
+        return true;
+    }
+
+    bool cancel() {
+        if (months_ == 0) {
+            return false;
+        }
+        months_ = 0;
+        return true;
+    }
+
+private:
+    int id_;
+    string name_;
+    int months_;
+};
+
+class Gym {
+public:
+    bool create(int id, const string& name) {
+        if (id == 0 || members_.size() >= 10) {
+            return false;
+        }
+        for (const auto& member : members_) {
+            if (member.get_id() == id) {
+                return false;
+            }
+        }
+        members_.emplace_back(id, name);
+        return true;
+    }
+
+    bool remove(int id) {
+        for (auto it = members_.begin(); it != members_.end(); ++it) {
+            if (it->get_id() == id) {
+                members_.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool extend(int id, int n) {
+        for (auto& member : members_) {
+            if (member.get_id() == id) {
+                return member.extend(n);
+            }
+        }
+        return false;
+    }
+
+    bool cancel(int id) {
+        for (auto& member : members_) {
+            if (member.get_id() == id) {
+                return member.cancel();
+            }
+        }
+        return false;
+    }
+
+    void print_all() const {
+        if (members_.empty()) {
+            cout << "No members in the system" << endl;
+        } else {
+            for (const auto& member : members_) {
+                cout << "Member " << member.get_id() << " : " << member.get_name() << ", subscription valid for "
+                     << member.get_months() << " months" << endl;
+            }
+        }
+    }
+
+private:
+    vector<Member> members_;
+};
+
+int main() {
+    Gym gym;
+    string command;
+    while (true) {
+        cin >> command;
+        if (command == "create") {
+            int id;
+            string name;
+            cin >> id >> name;
+            if (!gym.create(id, name)) {
+                cout << "Cannot perform this operation" << endl;
+            }
+        } else if (command == "delete") {
+            int id;
+            cin >> id;
+            if (!gym.remove(id)) {
+                cout << "Cannot perform this operation" << endl;
+            }
+        } else if (command == "extend") {
+            int id, n;
+            cin >> id >> n;
+            if (!gym.extend(id, n)) {
+                cout << "Cannot perform this operation" << endl;
+            }
+        } else if (command == "cancel") {
+            int id;
+            cin >> id;
+            if (!gym.cancel(id)) {
+                cout << "Cannot perform this operation" << endl;
+            }
+        } else if (command == "quit") {
+            break;
+        } else {
+            cout << "Unknown command" << endl;
+        }
+        gym.print_all();
+    }
+    return 0;
+}
