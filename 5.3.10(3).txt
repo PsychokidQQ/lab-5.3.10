@@ -1,0 +1,195 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Flight {
+private:
+    int id;
+    int capacity;
+    int reservations;
+
+public:
+    Flight() {
+        id = 0;
+        capacity = 0;
+        reservations = 0;
+    }
+
+    void setId(int flight_id) {
+        id = flight_id;
+    }
+
+    int getId() const {
+        return id;
+    }
+
+    bool create(int flight_id, int flight_cap) {
+        if (id != 0) {
+            return false;
+        }
+
+        if (flight_id == 0 || flight_cap <= 0) {
+            return false;
+        }
+
+        id = flight_id;
+        capacity = flight_cap;
+        reservations = 0;
+
+        return true;
+    }
+
+    bool addReservations(int n) {
+        if (reservations + n > capacity) {
+            return false;
+        }
+
+        reservations += n;
+        return true;
+    }
+
+    bool cancelReservations(int n) {
+        if (reservations - n < 0) {
+            return false;
+        }
+
+        reservations -= n;
+        return true;
+    }
+
+    void printStatus() const {
+        cout << "Flight " << id << " has " << reservations << " reservations out of " << capacity << " available seats." << endl;
+    }
+};
+
+class BookingSystem {
+private:
+    vector<Flight> flights;
+
+public:
+    bool createFlight(int flight_id, int flight_cap) {
+        if (flights.size() >= 10) {
+            cout << "Cannot perform this operation. Maximum number of flights reached." << endl;
+            return false;
+        }
+
+        for (Flight f : flights) {
+            if (f.getId() == flight_id) {
+                cout << "Cannot perform this operation. Flight with the same ID already exists." << endl;
+                return false;
+            }
+        }
+
+        Flight newFlight;
+        if (!newFlight.create(flight_id, flight_cap)) {
+            cout << "Cannot perform this operation. Invalid flight ID or capacity." << endl;
+            return false;
+        }
+
+        flights.push_back(newFlight);
+        cout << "Flight " << flight_id << " has been created with a capacity of " << flight_cap << "." << endl;
+        return true;
+    }
+
+    bool deleteFlight(int flight_id) {
+        for (int i = 0; i < flights.size(); i++) {
+            if (flights[i].getId() == flight_id) {
+                flights.erase(flights.begin() + i);
+                cout << "Flight " << flight_id << " has been deleted." << endl;
+                return true;
+            }
+        }
+
+        cout << "Cannot perform this operation. Flight not found." << endl;
+        return false;
+    }
+
+    bool addReservations(int flight_id, int n) {
+        for (Flight& f : flights) {
+            if (f.getId() == flight_id) {
+                if (f.addReservations(n)) {
+                    cout << n << " reservations have been added to flight " << flight_id << "." << endl;
+                    f.printStatus();
+                    return true;
+                }
+                else {
+                    cout << "Cannot perform this operation. Not enough available seats on flight " << flight_id << "." << endl;
+                    return false;
+                }
+            }
+        }
+
+        cout << "Cannot perform this operation. Flight not found." << endl;
+        return false;
+    }
+
+    bool cancelReservations(int flight_id, int n) {
+        for (Flight& f : flights) {
+            if (f.getId() == flight_id) {
+                if (f.cancelReservations(n)) {
+                   
+                    cout << n << " reservations have been cancelled from flight " << flight_id << "." << endl;
+                    f.printStatus();
+                    return true;
+                }
+                else {
+                    cout << "Cannot perform this operation. Not enough reservations on flight " << flight_id << "." << endl;
+                    return false;
+                }
+            }
+        }
+
+        cout << "Cannot perform this operation. Flight not found." << endl;
+        return false;
+    }
+
+    void printFlights() const {
+        if (flights.size() == 0) {
+            cout << "No flights found." << endl;
+        }
+        else {
+            cout << "List of flights:" << endl;
+            for (Flight f : flights) {
+                f.printStatus();
+            }
+        }
+    }
+};
+
+int main() {
+    BookingSystem bs;
+    string command;
+    while (true) {
+        cin >> command;
+        if (command == "create") {
+            int flight_id, flight_cap;
+            cin >> flight_id >> flight_cap;
+            bs.createFlight(flight_id, flight_cap);
+        }
+        else if (command == "delete") {
+            int flight_id;
+            cin >> flight_id;
+            bs.deleteFlight(flight_id);
+        }
+        else if (command == "add") {
+            int flight_id, n;
+            cin >> flight_id >> n;
+            bs.addReservations(flight_id, n);
+        }
+        else if (command == "cancel") {
+            int flight_id, n;
+            cin >> flight_id >> n;
+            bs.cancelReservations(flight_id, n);
+        }
+        else if (command == "list") {
+            bs.printFlights();
+        }
+        else if (command == "quit") {
+            break;
+        }
+        else {
+            cout << "Invalid command. Available commands: create, delete, add, cancel, list, quit." << endl;
+        }
+    }
+    return 0;
+}

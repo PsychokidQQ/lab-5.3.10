@@ -1,0 +1,91 @@
+#include <iostream>
+#include <iomanip>
+
+class FlightBooking {
+public:
+    FlightBooking(int id, int capacity, int reserved);
+    void printStatus() const;
+    bool reserveSeats(int number_ob_seats);
+    bool cancelReservations(int number_ob_seats);
+private:
+    int id;
+    int capacity;
+    int reserved;
+};
+
+FlightBooking::FlightBooking(int id, int capacity, int reserved) :
+        id(id), capacity(capacity), reserved(reserved)
+{
+    if (reserved < 0) {
+        reserved = 0;
+    } else if (reserved > capacity) {
+        reserved = capacity;
+    }
+}
+
+void FlightBooking::printStatus() const
+{
+    double percentage = static_cast<double>(reserved) / capacity * 100;
+    std::cout << "Flight " << id << " : " << reserved << "/" << capacity << " (" << std::fixed
+              << std::setprecision(0) << percentage << "%) seats taken\n";
+}
+
+bool FlightBooking::reserveSeats(int number_ob_seats)
+{
+    int new_reservation = reserved + number_ob_seats;
+    if (new_reservation > capacity * 1.05) {
+        return false;
+    } else {
+        reserved = new_reservation;
+        return true;
+    }
+}
+
+bool FlightBooking::cancelReservations(int number_ob_seats)
+{
+    int new_reservation = reserved - number_ob_seats;
+    if (new_reservation < 0) {
+        return false;
+    } else {
+        reserved = new_reservation;
+        return true;
+    }
+}
+
+int main() {
+    int reserved = 0, capacity = 0;
+    std::cout << "Provide flight capacity: ";
+    std::cin >> capacity;
+    std::cout << "Provide number of reserved seats: ";
+    std::cin >> reserved;
+    FlightBooking booking(1, capacity, reserved);
+    booking.printStatus();
+
+    std::string command;
+    while (command != "quit") {
+        std::cout << "What would you like to do (add/cancel/quit)? ";
+        std::cin >> command;
+
+        if (command == "add") {
+            int number_ob_seats;
+            std::cout << "How many seats do you want to add? ";
+            std::cin >> number_ob_seats;
+            if (!booking.reserveSeats(number_ob_seats)) {
+                std::cout << "Cannot perform this operation\n";
+            }
+            booking.printStatus();
+        } else if (command == "cancel") {
+            int number_ob_seats;
+            std::cout << "How many seats do you want to cancel? ";
+            std::cin >> number_ob_seats;
+            if (!booking.cancelReservations(number_ob_seats)) {
+                std::cout << "Cannot perform this operation\n";
+            }
+            booking.printStatus();
+        } else if (command != "quit") {
+            std::cout << "Invalid command\n";
+        }
+    }
+
+    return 0;
+}
